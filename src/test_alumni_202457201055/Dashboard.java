@@ -4,6 +4,7 @@
  */
 package test_alumni_202457201055;
 import com.formdev.flatlaf.FlatLightLaf;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.UIManager;
@@ -22,6 +23,11 @@ public class Dashboard extends javax.swing.JFrame {
         initComponents();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width, screenSize.height);
+        pUtama.setBackground(new Color(255, 105, 180));
+        pContent.removeAll();
+        pContent.add(new panelDashboard());
+        pContent.repaint();
+        pContent.revalidate();
     }
     
 
@@ -227,7 +233,7 @@ public class Dashboard extends javax.swing.JFrame {
 
     private void bJurusanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bJurusanActionPerformed
         pContent.removeAll();
-        pContent.add(new panelJurusan());
+        pContent.add(new panelJurusann());
         pContent.repaint();
         pContent.revalidate();
     }//GEN-LAST:event_bJurusanActionPerformed

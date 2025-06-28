@@ -4,7 +4,14 @@
  */
 package test_alumni_202457201055;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
 
 /**
  *
@@ -17,12 +24,44 @@ public class panelGuru extends javax.swing.JPanel {
      */
     public panelGuru() {
         initComponents();
-        tbGuru.setModel(new DefaultTableModel(
-                new Object[][]{},
-                new String[]{"NIP", "Nama", "Jenis Kelamin", "Alamat"}
-        ));
+        reset();
+        load_table_guru();
     }
+    void reset(){
+    
+    tNIP.setText(null);
+    tNIP.setEditable(true);
+    tNama.setText(null);
+    cbJenisKelamin.setSelectedItem(null);
+    tAlamat.setText(null);
+    }
+    void load_table_guru() {
+        DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("NIP");
+            model.addColumn("Nama Guru");
+            model.addColumn("Alamat");
 
+        String sql = "SELECT * FROM guru";
+        try {
+            Connection conn = koneksi.connect();
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+            String NIP = rs.getString("nip");
+            String Nama = rs.getString("nama_guru");
+            String jenisKelamin = rs.getString("gender");
+            String alamat = rs.getString("alamat");
+            
+            Object[] baris = {NIP, Nama, jenisKelamin, alamat};
+            model.addRow(baris);
+
+            }
+            
+        } catch (SQLException sQLException) {
+            JOptionPane.showMessageDialog(null, "Gagal memilih data!");
+        }
+            tbGuru.setModel(model);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -182,6 +221,11 @@ public class panelGuru extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tbGuru.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbGuruMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tbGuru);
 
         javax.swing.GroupLayout pUtamaLayout = new javax.swing.GroupLayout(pUtama);
@@ -263,20 +307,44 @@ public class panelGuru extends javax.swing.JPanel {
     }//GEN-LAST:event_bCloseActionPerformed
 
     private void bResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResetActionPerformed
-        tNIP.setText("");
-        tNama.setText("");
-        cbJenisKelamin.setSelectedIndex(0);
-        tAlamat.setText("");
+        reset();
     }//GEN-LAST:event_bResetActionPerformed
 
     private void bTambah1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTambah1ActionPerformed
-        String nip = tNIP.getText();
-        String nama = tNama.getText();
-        String jk = cbJenisKelamin.getSelectedItem().toString();
+        String NIP = tNIP.getText();
+        String namaGuru = tNama.getText();
+        String jenisKelamin = cbJenisKelamin.getSelectedItem().toString();
         String alamat = tAlamat.getText();
-
-        DefaultTableModel model = (DefaultTableModel) tbGuru.getModel();
-        model.addRow(new Object[]{nip, nama, jk, alamat});
+        String jK = null;
+        
+        switch(jenisKelamin){
+            case "Laki-laki":
+                jK = "L";
+                break;
+            case "Perempuan":
+                jK = "P";
+                break;
+            default:
+                jK = null;
+                break;
+        }
+        String sql = "INSERT INTO guru(nip, nama_guru, gender, alamat) VALUES (?,?,?,?)";
+        
+        try {
+        Connection conn = koneksi.connect();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, NIP);
+        ps.setString(2, namaGuru);
+        ps.setString(3, jK);
+        ps.setString(4, alamat);
+        ps.execute();
+        
+        JOptionPane.showMessageDialog(null, "Data berhasil disimpan!");
+        }catch (SQLException sQLException){
+        JOptionPane.showMessageDialog(null, "Data gagal disimpan!");
+        }
+        load_table_guru();
+        reset();
     }//GEN-LAST:event_bTambah1ActionPerformed
 
     private void bUbahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bUbahActionPerformed
@@ -291,11 +359,19 @@ public class panelGuru extends javax.swing.JPanel {
     }//GEN-LAST:event_bUbahActionPerformed
 
     private void bHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bHapusActionPerformed
-        int row = tbGuru.getSelectedRow();
-        if (row != -1) {
-            DefaultTableModel model = (DefaultTableModel) tbGuru.getModel();
-            model.removeRow(row);
+        String NIP = tNIP.getText();
+        String sql = "DELETE FROM guru WHERE nip = ?";
+        try {
+        Connection conn = koneksi.connect();
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, NIP);
+        ps.execute();
+        JOptionPane.showMessageDialog(null, "Data Berhasil dihapus!");
+        } catch(SQLException sQLException){
+        JOptionPane.showMessageDialog(null, "Data Gagal dihapus!");
         }
+        load_table_guru();
+        reset();
     }//GEN-LAST:event_bHapusActionPerformed
 
     private void tNIPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tNIPActionPerformed
@@ -313,6 +389,32 @@ public class panelGuru extends javax.swing.JPanel {
     private void tAlamatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tAlamatActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tAlamatActionPerformed
+
+    private void tbGuruMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbGuruMouseClicked
+        int barisYangDipilih = tbGuru.rowAtPoint(evt.getPoint());
+
+        String NIP = tbGuru.getValueAt(barisYangDipilih, 0).toString();
+        String namaGuru = tbGuru.getValueAt(barisYangDipilih, 1).toString();
+        String jenisKelamin = tbGuru.getValueAt(barisYangDipilih, 2).toString();
+        String alamat = tbGuru.getValueAt(barisYangDipilih, 3).toString();
+        
+        tNIP.setText(NIP);
+        tNIP.setEditable(false);
+        tNama.setText(namaGuru);
+        tAlamat.setText(alamat);
+
+        switch (jenisKelamin) {
+            case "L":
+                cbJenisKelamin.setSelectedItem("Laki-laki");
+                break;
+            case "P":
+                cbJenisKelamin.setSelectedItem("Perempuan");
+                break;
+            default:
+                cbJenisKelamin.setSelectedItem(null);
+                throw new AssertionError();
+        }
+    }//GEN-LAST:event_tbGuruMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

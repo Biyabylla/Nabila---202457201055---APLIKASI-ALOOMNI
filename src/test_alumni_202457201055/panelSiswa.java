@@ -3,6 +3,21 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package test_alumni_202457201055;
+
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.io.File;
+import java.nio.file.Files;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -18,10 +33,71 @@ public class panelSiswa extends javax.swing.JPanel {
 
     public panelSiswa() {
         initComponents();
-        String[] kolom = {"NIS", "Nama", "Jenis Kelamin", "Tempat Lahir", "Tanggal Lahir", "No HP", "Kelas", "Alamat"};
-        model = new DefaultTableModel(null, kolom);
-        tbDataSsiwa.setModel(model);
+        reset();
+        load_table_siswa();
+        comboKelas();
     }
+    void reset() {
+    tNIS.setText(null);
+    tNama.setText(null);
+    cbJenisKelamin.setSelectedItem(null);
+    tTempatLahir.setText(null);
+    jTanggal.setCalendar(null);
+    tNomorHP.setText(null);
+    cbKelas.setSelectedItem(null);
+    tAlamat.setText(null);
+    lFoto.setIcon(null);
+    tFoto.setText("Foto");
+    lFoto.setText(null);
+}
+    void comboKelas() {
+    try {
+        String sql = "SELECT * FROM kelas";
+        Connection conn = koneksi.connect();
+        Statement statement = conn.createStatement();
+        ResultSet resultset = statement.executeQuery(sql);
+        while (resultset.next()) {
+            cbKelas.addItem(resultset.getString("nama_kelas"));
+        }
+    } catch (SQLException e) {
+        cbKelas.setSelectedItem(null);
+    }
+}
+
+void load_table_siswa() {
+    DefaultTableModel model = new DefaultTableModel();
+    model.addColumn("NIS");
+    model.addColumn("Nama Siswa");
+    model.addColumn("L/P");
+    model.addColumn("Tempat Lahir");
+    model.addColumn("Tgl Lahir");
+    model.addColumn("Kelas");
+    model.addColumn("HP");
+
+    String sql = "SELECT * FROM siswa";
+    
+    try {
+        Connection conn = koneksi.connect();
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(sql);
+
+        while (rs.next()) {
+            String nis = rs.getString("nis");
+            String namasiswa = rs.getString("nama_siswa");
+            String jeniskelamin = rs.getString("gender");
+            String tempatlahir = rs.getString("tempat_lahir");
+            String tgllahir = rs.getString("tgl_lahir");
+            String kelas = rs.getString("kelas");
+            String hp = rs.getString("no_hp");
+
+            model.addRow(new Object[] { nis, namasiswa, jeniskelamin, tempatlahir, tgllahir, kelas, hp });
+        }
+
+        tbDataSiswa.setModel(model);
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, e);
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -36,10 +112,8 @@ public class panelSiswa extends javax.swing.JPanel {
         pDataSiswa = new javax.swing.JPanel();
         lDataSiswa = new javax.swing.JLabel();
         bClose = new javax.swing.JButton();
-        pFoto = new javax.swing.JPanel();
-        lFoto = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tbDataSsiwa = new javax.swing.JTable();
+        tbDataSiswa = new javax.swing.JTable();
         lNIS = new javax.swing.JLabel();
         lNama = new javax.swing.JLabel();
         lJenisKelamin = new javax.swing.JLabel();
@@ -48,7 +122,6 @@ public class panelSiswa extends javax.swing.JPanel {
         tNIS = new javax.swing.JTextField();
         tNama = new javax.swing.JTextField();
         tTempatLahir = new javax.swing.JTextField();
-        tTanggalLahir = new javax.swing.JTextField();
         cbJenisKelamin = new javax.swing.JComboBox<>();
         lNomorHP = new javax.swing.JLabel();
         lKelas = new javax.swing.JLabel();
@@ -60,6 +133,9 @@ public class panelSiswa extends javax.swing.JPanel {
         bUbah = new javax.swing.JButton();
         bHapus = new javax.swing.JButton();
         bReset = new javax.swing.JButton();
+        jTanggal = new com.toedter.calendar.JDateChooser();
+        tFoto = new javax.swing.JTextField();
+        lFoto = new javax.swing.JLabel();
 
         pUtama.setBackground(new java.awt.Color(204, 204, 204));
 
@@ -86,42 +162,19 @@ public class panelSiswa extends javax.swing.JPanel {
                 .addComponent(lDataSiswa)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(bClose)
-                .addGap(35, 35, 35))
+                .addContainerGap())
         );
         pDataSiswaLayout.setVerticalGroup(
             pDataSiswaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pDataSiswaLayout.createSequentialGroup()
-                .addGroup(pDataSiswaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pDataSiswaLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(lDataSiswa))
-                    .addGroup(pDataSiswaLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(bClose)))
+                .addContainerGap()
+                .addGroup(pDataSiswaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(bClose)
+                    .addComponent(lDataSiswa))
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
-        lFoto.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        lFoto.setText("Foto");
-
-        javax.swing.GroupLayout pFotoLayout = new javax.swing.GroupLayout(pFoto);
-        pFoto.setLayout(pFotoLayout);
-        pFotoLayout.setHorizontalGroup(
-            pFotoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pFotoLayout.createSequentialGroup()
-                .addContainerGap(91, Short.MAX_VALUE)
-                .addComponent(lFoto)
-                .addGap(88, 88, 88))
-        );
-        pFotoLayout.setVerticalGroup(
-            pFotoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pFotoLayout.createSequentialGroup()
-                .addGap(112, 112, 112)
-                .addComponent(lFoto)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        tbDataSsiwa.setModel(new javax.swing.table.DefaultTableModel(
+        tbDataSiswa.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -132,7 +185,7 @@ public class panelSiswa extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(tbDataSsiwa);
+        jScrollPane1.setViewportView(tbDataSiswa);
 
         lNIS.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lNIS.setText("NIS");
@@ -164,12 +217,6 @@ public class panelSiswa extends javax.swing.JPanel {
         tTempatLahir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tTempatLahirActionPerformed(evt);
-            }
-        });
-
-        tTanggalLahir.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tTanggalLahirActionPerformed(evt);
             }
         });
 
@@ -252,40 +299,43 @@ public class panelSiswa extends javax.swing.JPanel {
             }
         });
 
+        jTanggal.setDateFormatString("yyyy, MM, dd\n");
+
+        tFoto.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        tFoto.setText("FOTO");
+        tFoto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tFotoMouseClicked(evt);
+            }
+        });
+
+        lFoto.setText(" link foto");
+
         javax.swing.GroupLayout pUtamaLayout = new javax.swing.GroupLayout(pUtama);
         pUtama.setLayout(pUtamaLayout);
         pUtamaLayout.setHorizontalGroup(
             pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pDataSiswa, javax.swing.GroupLayout.DEFAULT_SIZE, 874, Short.MAX_VALUE)
+            .addComponent(pDataSiswa, javax.swing.GroupLayout.DEFAULT_SIZE, 848, Short.MAX_VALUE)
             .addGroup(pUtamaLayout.createSequentialGroup()
                 .addGap(26, 26, 26)
                 .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pUtamaLayout.createSequentialGroup()
-                        .addComponent(bTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bUbah, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bReset, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(394, 394, 394))
-                    .addGroup(pUtamaLayout.createSequentialGroup()
-                        .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 802, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(pUtamaLayout.createSequentialGroup()
-                                .addComponent(pFoto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(lNIS)
-                                    .addComponent(tNIS, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tNIS, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
                                     .addComponent(lNama)
                                     .addComponent(lJenisKelamin)
-                                    .addComponent(tNama, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cbJenisKelamin, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tNama, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+                                    .addComponent(cbJenisKelamin, 0, 270, Short.MAX_VALUE)
                                     .addComponent(lTempatLahir)
-                                    .addComponent(tTempatLahir, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(tTanggalLahir, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lTanggalLahir))
+                                    .addComponent(tTempatLahir, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+                                    .addComponent(lTanggalLahir)
+                                    .addComponent(jTanggal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addGap(18, 18, 18)
                                 .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(lAlamat, javax.swing.GroupLayout.Alignment.LEADING)
@@ -294,7 +344,19 @@ public class panelSiswa extends javax.swing.JPanel {
                                     .addComponent(cbKelas, javax.swing.GroupLayout.Alignment.LEADING, 0, 281, Short.MAX_VALUE)
                                     .addComponent(tAlamat, javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(tNomorHP, javax.swing.GroupLayout.Alignment.LEADING))))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGap(0, 20, Short.MAX_VALUE))
+                    .addGroup(pUtamaLayout.createSequentialGroup()
+                        .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pUtamaLayout.createSequentialGroup()
+                                .addComponent(bTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(bUbah, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(bHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(bReset, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         pUtamaLayout.setVerticalGroup(
             pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -332,10 +394,10 @@ public class panelSiswa extends javax.swing.JPanel {
                                 .addComponent(tTempatLahir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lTanggalLahir)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(tTanggalLahir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jTanggal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(tAlamat)))
-                    .addComponent(pFoto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(tFoto))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(pUtamaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bReset, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -343,19 +405,23 @@ public class panelSiswa extends javax.swing.JPanel {
                     .addComponent(bUbah, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lFoto)
+                .addContainerGap(16, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pUtama, javax.swing.GroupLayout.PREFERRED_SIZE, 848, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(pUtama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pUtama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(pUtama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -370,10 +436,6 @@ public class panelSiswa extends javax.swing.JPanel {
     private void tTempatLahirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tTempatLahirActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tTempatLahirActionPerformed
-
-    private void tTanggalLahirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tTanggalLahirActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tTanggalLahirActionPerformed
 
     private void tNomorHPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tNomorHPActionPerformed
         // TODO add your handling code here:
@@ -396,77 +458,61 @@ public class panelSiswa extends javax.swing.JPanel {
     }//GEN-LAST:event_cbKelasActionPerformed
 
     private void bTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTambahActionPerformed
-           String nis = tNIS.getText();
-        String nama = tNama.getText();
-        String jk = cbJenisKelamin.getSelectedItem().toString();
-        String tempat = tTempatLahir.getText();
-        String tanggal = tTanggalLahir.getText();
-        String hp = tNomorHP.getText();
-        String kelas = cbKelas.getSelectedItem().toString();
-        String alamat = tAlamat.getText();
-
-        if (!nis.isEmpty() && !nama.isEmpty() && !tempat.isEmpty() && !tanggal.isEmpty() && !hp.isEmpty() && !alamat.isEmpty()) {
-            String[] data = {nis, nama, jk, tempat, tanggal, hp, kelas, alamat};
-            model.addRow(data);
-            tNIS.setText("");
-            tNama.setText("");
-            tTempatLahir.setText("");
-            tTanggalLahir.setText("");
-            tNomorHP.setText("");
-            tAlamat.setText("");
-            cbJenisKelamin.setSelectedIndex(0);
-            cbKelas.setSelectedIndex(0);
-        }
+          
     }//GEN-LAST:event_bTambahActionPerformed
 
     private void bUbahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bUbahActionPerformed
-        int row = tbDataSsiwa.getSelectedRow();
-        if (row >= 0) {
-            tbDataSsiwa.setValueAt(tNIS.getText(), row, 0);
-            tbDataSsiwa.setValueAt(tNama.getText(), row, 1);
-            tbDataSsiwa.setValueAt(cbJenisKelamin.getSelectedItem(), row, 2);
-            tbDataSsiwa.setValueAt(tTempatLahir.getText(), row, 3);
-            tbDataSsiwa.setValueAt(tTanggalLahir.getText(), row, 4);
-            tbDataSsiwa.setValueAt(tNomorHP.getText(), row, 5);
-            tbDataSsiwa.setValueAt(cbKelas.getSelectedItem(), row, 6);
-            tbDataSsiwa.setValueAt(tAlamat.getText(), row, 7);
-            tNIS.setText("");
-            tNama.setText("");
-            tTempatLahir.setText("");
-            tTanggalLahir.setText("");
-            tNomorHP.setText("");
-            tAlamat.setText("");
-            cbJenisKelamin.setSelectedIndex(0);
-            cbKelas.setSelectedIndex(0);
-        }
+        
     }//GEN-LAST:event_bUbahActionPerformed
 
     private void bHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bHapusActionPerformed
-        int row = tbDataSsiwa.getSelectedRow();
-        if (row >= 0) {
-            model.removeRow(row);
-            tNIS.setText("");
-            tNama.setText("");
-            tTempatLahir.setText("");
-            tTanggalLahir.setText("");
-            tNomorHP.setText("");
-            tAlamat.setText("");
-            cbJenisKelamin.setSelectedIndex(0);
-            cbKelas.setSelectedIndex(0);
-        }
+    String nis = tNIS.getText();
+    String sql = "DELETE FROM siswa WHERE nis=?";
+    try {
+        Connection conn = koneksi.connect();
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.setString(1, nis);
+        statement.execute();
+        JOptionPane.showMessageDialog(null, "Data berhasil dihapus!");
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Gagal menghapus data: " + e.getMessage());
+    }
+    load_table_siswa();
+    reset();
+
     }//GEN-LAST:event_bHapusActionPerformed
 
     private void bResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResetActionPerformed
-        tNIS.setText("");
-        tNama.setText("");
-        tTempatLahir.setText("");
-        tTanggalLahir.setText("");
-        tNomorHP.setText("");
-        tAlamat.setText("");
-        cbJenisKelamin.setSelectedIndex(0);
-        cbKelas.setSelectedIndex(0);
-        tbDataSsiwa.clearSelection();
+        reset();
     }//GEN-LAST:event_bResetActionPerformed
+
+    private void tFotoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tFotoMouseClicked
+    try {
+    JFileChooser chooser = new JFileChooser();
+    int result = chooser.showOpenDialog(null);
+    if (result == JFileChooser.APPROVE_OPTION) {
+        File file = chooser.getSelectedFile();
+        if (file != null) {
+            ImageIcon icon = new ImageIcon(file.toString());
+            Image image = icon.getImage().getScaledInstance(
+                tFoto.getWidth(),
+                tFoto.getHeight(),
+                Image.SCALE_SMOOTH
+            );
+            ImageIcon ic = new ImageIcon(image);
+            tFoto.setText(null);
+            lFoto.setIcon(ic);
+            String filename = file.getAbsolutePath();
+            tFoto.setText(filename);
+        }
+    } else {
+        System.out.println("Pemilihan file dibatalkan oleh pengguna.");
+    }
+} catch (HeadlessException e) {
+    JOptionPane.showMessageDialog(null, "Error Upload: " + e.getMessage());
+}
+
+    }//GEN-LAST:event_tFotoMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -478,6 +524,7 @@ public class panelSiswa extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> cbJenisKelamin;
     private javax.swing.JComboBox<String> cbKelas;
     private javax.swing.JScrollPane jScrollPane1;
+    private com.toedter.calendar.JDateChooser jTanggal;
     private javax.swing.JLabel lAlamat;
     private javax.swing.JLabel lDataSiswa;
     private javax.swing.JLabel lFoto;
@@ -489,14 +536,13 @@ public class panelSiswa extends javax.swing.JPanel {
     private javax.swing.JLabel lTanggalLahir;
     private javax.swing.JLabel lTempatLahir;
     private javax.swing.JPanel pDataSiswa;
-    private javax.swing.JPanel pFoto;
     private javax.swing.JPanel pUtama;
     private javax.swing.JTextField tAlamat;
+    private javax.swing.JTextField tFoto;
     private javax.swing.JTextField tNIS;
     private javax.swing.JTextField tNama;
     private javax.swing.JTextField tNomorHP;
-    private javax.swing.JTextField tTanggalLahir;
     private javax.swing.JTextField tTempatLahir;
-    private javax.swing.JTable tbDataSsiwa;
+    private javax.swing.JTable tbDataSiswa;
     // End of variables declaration//GEN-END:variables
 }

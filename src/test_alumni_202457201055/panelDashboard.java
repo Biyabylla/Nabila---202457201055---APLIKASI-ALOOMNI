@@ -8,6 +8,13 @@ package test_alumni_202457201055;
  *
  * @author Nabila
  */
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 public class panelDashboard extends javax.swing.JPanel {
 
     /**
@@ -15,7 +22,47 @@ public class panelDashboard extends javax.swing.JPanel {
      */
     public panelDashboard() {
         initComponents();
+        isiJumlahDataDasbor();
     }
+    private void isiJumlahDataDasbor() {
+    Connection conn = koneksi.connect();
+    try {
+        String sqlJurusan = "SELECT COUNT(*) AS jumlah FROM jurusan";
+        Statement psJurusan = conn.createStatement();
+        ResultSet rsJurusan = psJurusan.executeQuery(sqlJurusan);
+        if (rsJurusan.next()) {
+            int jumlah = rsJurusan.getInt("jumlah");
+            lTotalJurusan.setText(String.valueOf(jumlah));
+        }
+
+        String sqlGuru = "SELECT COUNT(*) AS jumlah FROM guru";
+        Statement psGuru = conn.createStatement();
+        ResultSet rsGuru = psGuru.executeQuery(sqlGuru);
+        if (rsGuru.next()) {
+            int jumlah = rsGuru.getInt("jumlah");
+            lTotalGuru.setText(String.valueOf(jumlah));
+        }
+
+        String sqlSiswa = "SELECT COUNT(*) AS jumlah FROM siswa";
+        Statement psSiswa = conn.createStatement();
+        ResultSet rsSiswa = psSiswa.executeQuery(sqlSiswa);
+        if (rsSiswa.next()) {
+            int jumlah = rsSiswa.getInt("jumlah");
+            lTotalSiswa.setText(String.valueOf(jumlah));
+        }
+
+        String sqlKelas = "SELECT COUNT(*) AS jumlah FROM kelas";
+        Statement psKelas = conn.createStatement();
+        ResultSet rsKelas = psKelas.executeQuery(sqlKelas);
+        if (rsKelas.next()) {
+            int jumlah = rsKelas.getInt("jumlah");
+            lJumlahKelas.setText(String.valueOf(jumlah));
+        }
+    } catch (SQLException e) {
+        System.err.println("Gagal mengambil jumlah data");
+    }
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
